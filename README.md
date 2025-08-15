@@ -4,7 +4,7 @@ A visionary, interactive digital map of The Unconscious Architect treatise — f
 
 🌌 Overview
 
-This artifact lets visitors explore your treatise in a living, fractal interface:
+This artifact lets visitors explore my treatise in a living, fractal interface:
 
 Fractal Pack (Zoomable) — dive from the global map to clusters to individual concept nodes.
 
@@ -14,7 +14,7 @@ Perspectives — reframe content through curated philosophical lenses (e.g., Wil
 
 Impermanence Mode — introduces subtle hue drift and micro-motion to embody the treatise’s theme of evolving frameworks.
 
-The design reflects your visionary digital art aesthetic, using a blue/green/violet palette to evoke depth, calm, and transcendence.
+The design reflects my visionary digital art aesthetic, using a blue/green/violet palette to evoke depth, calm, and transcendence.
 
 🎯 Core Concepts
 Okuden Construct
@@ -46,24 +46,6 @@ Perspective Shift Tool — Instantly reframe concepts from different philosophic
 Breadcrumb Navigation — Track your exploration path.
 
 Impermanence Toggle — Subtle visual shifts over time.
-
-🛠 How to Run Locally
-
-Clone the repo:
-
-git clone https://github.com/yourusername/okuden-noetic-artifact.git
-cd okuden-noetic-artifact
-
-
-Open index.html in your browser.
-
-🌐 Deploy to GitHub Pages
-
-Commit and push to GitHub.
-
-In repo settings: Pages → Deploy from branch (main, /root folder).
-
-Access your live artifact from the provided URL.
 
 📜 License
 
