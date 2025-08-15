@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Okuden × Noetic — Fractal Artifact</title>
+  <meta name="description" content="Interactive fractal map that embodies the Okuden Construct (engine) and Noetic Tessellation (structure) mapped to 'The Unconscious Architect' treatise."/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      /* Visionary digital art palette: blue/green/violet */
+      --bg:#070a16; --panel:#0c1326; --panel2:#0f1733; --ink:#eaf2ff; --muted:#9db1d0; --accent:#89ffd1;
+      --okuden:#5aa0ff; --noetic:#46c27a; --gold:#6fe7ff; --violet:#a88bff;
+      --halo1:#0a1230; --halo2:#08142a; --glow:#6ce0ff44;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;}
+    body{margin:0; background:
+      radial-gradient(1200px 600px at 10% -10%, #0e1b4d 0, #070a16 60%),
+      radial-gradient(900px 900px at 120% 10%, #0a1738 0, transparent 55%),
+      radial-gradient(1400px 700px at 50% 120%, #0b1b2e 0, transparent 60%);
+      font-family:Inter,Space Grotesk,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif; color:var(--ink);
+      background-attachment: fixed;
+    }
+    header{display:flex; align-items:center; justify-content:space-between; padding:14px 18px; backdrop-filter: blur(10px); background:linear-gradient(90deg,rgba(10,20,60,.75),rgba(10,20,60,.35)); border-bottom:1px solid rgba(255,255,255,.06); position:sticky; top:0; z-index:5}
+    header h1{font-size:18px; margin:0; letter-spacing:.3px; font-weight:800}
+    header .sub{font-weight:600; color:var(--muted); font-size:12px}
+    #controls{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+    .chip{display:inline-flex; align-items:center; gap:8px; padding:8px 10px; border-radius:12px; background:var(--panel); border:1px solid rgba(255,255,255,.08);}
+    .chip label{font-size:12px; color:var(--muted)}
+    select, button, input[type="checkbox"]{appearance:none; font:inherit; color:var(--ink); background:var(--panel2); border:1px solid rgba(255,255,255,.1); padding:8px 10px; border-radius:10px; outline:none}
+    select:focus, button:focus{box-shadow:0 0 0 2px var(--glow)}
+    button{cursor:pointer}
+
+    main{display:grid; grid-template-columns: minmax(360px,1fr) 420px; gap:14px; padding:14px;}
+    #vizWrap{background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,.04)); border:1px solid rgba(255,255,255,.08); border-radius:18px; position:relative; box-shadow:0 18px 60px rgba(0,0,0,.25) inset, 0 0 40px 10px var(--glow);}
+    #panel{background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.06)); border:1px solid rgba(255,255,255,.08); border-radius:18px; padding:16px; overflow:auto; max-height:calc(100vh - 120px)}
+    #panel h2{margin:0 0 4px 0; font-size:16px}
+    #panel small{color:var(--muted)}
+    #panel .bubble{display:inline-block; padding:4px 8px; border-radius:999px; background:#0e1a3a; border:1px solid rgba(255,255,255,.08); font-size:11px; color:#cfe6ff; margin:4px 4px 8px 0}
+    #panel .ok{background:#0e1a3a; color:#cfe0ff; border-color:#3e66c7}
+    #panel .no{background:#0a2318; color:#cdebd7; border-color:#2f9b64}
+    #panel .vi{background:#1b1033; color:#e4d8ff; border-color:#8b6cff}
+    #panel p{line-height:1.6}
+    #panel .full{white-space:pre-wrap; line-height:1.52}
+    #trail{display:flex; gap:6px; flex-wrap:wrap; margin:10px 0 8px}
+    #trail .crumb{font-size:12px; color:#cbe7ff; background:#0a1f3a; border:1px solid rgba(141,225,255,.35); padding:4px 8px; border-radius:999px}
+
+    footer{padding:10px 18px; color:var(--muted); font-size:12px}
+
+    .tooltip{position:fixed; pointer-events:none; background:#0b1430; color:#e9eef8; border:1px solid rgba(255,255,255,.1); padding:6px 8px; border-radius:8px; font-size:12px; opacity:0; transform:translateY(6px); transition:opacity .12s ease, transform .12s ease; z-index:20}
+
+    #legend{position:absolute; left:12px; bottom:12px; display:flex; gap:8px; align-items:center; background:rgba(10,20,60,.6); padding:8px 10px; border-radius:10px; border:1px solid rgba(255,255,255,.08)}
+    .dot{width:10px; height:10px; border-radius:999px; display:inline-block}
+
+    @media (max-width: 980px){ main{grid-template-columns:1fr; } #panel{order:-1; max-height:unset} }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>Okuden × Noetic — Fractal Artifact</h1>
+      <div class="sub">Treatise mapped into a recursive, navigable cognitive geometry</div>
+    </div>
+    <div id="controls">
+      <div class="chip">
+        <label for="viewMode">View</label>
+        <select id="viewMode" title="Choose visualization mode">
+          <option value="pack" selected>Fractal Pack (Zoomable)</option>
+          <option value="graph">Relational Graph</option>
+        </select>
+      </div>
+      <div class="chip">
+        <label for="perspective">Perspective</label>
+        <select id="perspective" title="Reframe selected concept">
+          <option value="neutral">Neutral</option>
+          <option value="okuden">Okuden Engine</option>
+          <option value="noetic">Noetic Map</option>
+          <option value="hume">Hume</option>
+          <option value="nietzsche">Nietzsche</option>
+          <option value="foucault">Foucault</option>
+          <option value="jung">Jung</option>
+          <option value="arendt">Arendt</option>
+          <option value="kierkegaard">Kierkegaard</option>
+          <option value="james">William James</option>
+        </select>
+      </div>
+      <div class="chip">
+        <label for="impermanence">Impermanence</label>
+        <input type="checkbox" id="impermanence" />
+      </div>
+      <button id="resetBtn" title="Reset view">Reset View</button>
+    </div>
+  </header>
+
+  <main>
+    <section id="vizWrap">
+      <div id="legend">
+        <span class="dot" style="background:var(--okuden)"></span><small>Okuden (engine)</small>
+        <span class="dot" style="background:var(--noetic)"></span><small>Noetic (structure)</small>
+        <span class="dot" style="background:var(--gold)"></span><small>Practice</small>
+        <span class="dot" style="background:var(--violet)"></span><small>Meta / Death</small>
+      </div>
+      <svg id="pack" width="100%" height="680"></svg>
+      <svg id="graph" width="100%" height="680"></svg>
+    </section>
+    <aside id="panel">
+      <div id="trail"></div>
+      <h2 id="title">Welcome</h2>
+      <small id="subtitle">Click a circle to zoom in. Select nodes to read mapped concepts.</small>
+      <div style="margin-top:10px">
+        <span class="bubble ok">Okuden: philosophical engine</span>
+        <span class="bubble no">Noetic: structural manifestation</span>
+        <span class="bubble vi">Violet: mortality & meta</span>
+      </div>
+      <p id="content" style="margin-top:10px">This artifact expresses your treatise as a living system: the zoomable <strong>Fractal Pack</strong> shows recursive containment (mandala / cognitive DNA), while the <strong>Relational Graph</strong> shows cross-links between concepts (noetic tiling). Choose a perspective to reframe any selected concept—embodying epistemic humility in action.</p>
+      <div id="fullText" class="full"></div>
+      <div id="actions"></div>
+    </aside>
+  </main>
+
+  <footer>
+    Built for Stephen — v1.1 (visionary palette + full-text leaves). Host with GitHub Pages (Settings → Pages → Deploy from branch).
+  </footer>
+
+  <div class="tooltip" id="tip"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+  <script>
+    // ---------- Full Treatise Texts (verbatim from your draft) ----------
+    const TEXTS = {
+      Preface:`Human beings possess perhaps the most remarkable cognitive capacity in the known universe: the ability to construct meaning from chaos, to weave narratives from fragments, and to build elaborate conceptual frameworks that transform raw experience into comprehensible reality. Yet this very gift—our capacity for reflexive, imaginative, and narrative thought—becomes our greatest epistemic prison when we forget that we are its architects.
+
+This treatise examines a fundamental paradox of human consciousness: we are creatures who cannot help but create stories about reality, yet we persistently mistake our stories for reality itself. We are unconscious architects of our own understanding, building elaborate mental structures while remaining blind to our role as builders. This blindness generates conflict, dogmatism, and a tragic resistance to the epistemic humility that our condition requires.
+
+The argument developed here is that consciousness itself—our capacity for self-reflective awareness—is not a direct window onto reality but an evolved, constructed system that filters and organizes experience according to metaphorical frameworks. Understanding this changes everything: from how we approach political disagreements to how we face our own mortality, from how we educate children to how we design institutions capable of long-term thinking.`,
+
+      ConstructedMind:`Human consciousness is not what it appears to be... (Chapter I opening)
+
+The psychologist Julian Jaynes proposed that modern self-reflective consciousness emerged through the development of metaphorical language...`,
+      ReflexiveQuality:`We cannot think without simultaneously thinking about thinking... Hume noted that causation is projected rather than observed...`,
+      ImaginativeFoundation:`Friedrich Nietzsche understood that what we call "truth" is often a mobile army of metaphors...`,
+      NarrativeConstruction:`Hannah Arendt observed that storytelling is fundamental to meaning and identity...`,
+
+      IllusionOfObjectivity:`William James: once habits are established we forget they are habits... Jung: projection of inner order... Foucault: knowledge shaped by power/relations and history...`,
+      Transparency:`One peculiar feature of consciousness is its transparency; we see the tree, not our seeing...`,
+      PassiveReception:`Kierkegaard: humans prefer passivity—receiving truth—over responsibility for meaning...`,
+      Reification:`We harden processes into things; tools into truths (economy, intelligence)...`,
+
+      Consequences:`When frameworks are absolutized: conflict, dogmatism, resistance to humility...`,
+      Reflection:`Philosophical reflection examines assumptions; truth is something we become...`,
+      PerspectiveTaking:`Seriously inhabit rival frameworks from the inside to expand the repertoire of responses...`,
+      Uncertainty:`Embrace uncertainty as a design condition; act experimentally...`,
+
+      EthicsPolitics:`If we build reality, we bear responsibility for our architectures—choose metaphors that widen possibility... redesign institutions...`,
+
+      DeathGroundlessness:`The terror in the face of groundlessness is conditioned; the ego is a scaffolding of memory and projection—a verb posing as a noun. Make the ego transparent to itself; embed contingency awareness; dwell within impermanence.`,
+      PoliticsDeathDenial:`Macro-ego defenses: cults of certainty, short-termism, institutional destruction as meaning reboot...`,
+
+      PathwaysForward:`Meta-cognitive flexibility; cultural innovations that carry humility with coherence; the long view that befriends mortality.`,
+      Conclusion:`We are the creatures who create meaning; the task is to build with awareness, skill, and responsibility—neither absolutism nor chaos but a middle way.`
+    };
+
+    // ---------- Data: treatise mapped to Okuden (engine) & Noetic (structure) ----------
+    const DATA = {
+      name: "The Unconscious Architect",
+      role: "root",
+      blurb: "We are unconscious architects of meaning; awakening means seeing and steering our constructions.",
+      full: TEXTS.Preface,
+      children: [
+        {
+          name: "I. Constructed Mind",
+          role: "okuden",
+          blurb: "Consciousness as engineered mind-space; reflexive, metaphor-driven, narrative by default.",
+          full: TEXTS.ConstructedMind,
+          children:[
+            {name:"Metaphor creates mind-space", role:"okuden", author:"Jaynes", blurb:"Metaphorical language invents an internal stage where 'thoughts' become manipulable objects.", full: TEXTS.ConstructedMind, perspectives:{okuden:"Rule: language builds the scaffold we mistake for a room.", noetic:"Tile: container metaphor repeats across scales (self, group, culture).", hume:"We infer inner objects by habit, not observation."}},
+            {name:"Reflexive cognition", role:"okuden", author:"Hume", blurb:"We think about thinking; causation is projected, not seen.", full: TEXTS.ReflexiveQuality, perspectives:{okuden:"Rule: uncover projections before claims.", noetic:"Tile: feedback loops at every zoom."}},
+            {name:"Imaginative foundation", role:"okuden", author:"Nietzsche", blurb:"Truths ride on armies of metaphors.", full: TEXTS.ImaginativeFoundation, perspectives:{nietzsche:"All concepts are worn-down metaphors; utility beats 'truth'."}},
+            {name:"Narrative construction", role:"noetic", author:"Arendt", blurb:"Stories knit identity and world; coherence performs continuity.", full: TEXTS.NarrativeConstruction, perspectives:{arendt:"Political meaning crystallizes through storytelling."}}
+          ]
+        },
+        {
+          name: "II. Illusion of Objectivity",
+          role: "okuden",
+          blurb: "We forget our authorship; projections & power make frameworks feel like nature.",
+          full: TEXTS.IllusionOfObjectivity,
+          children:[
+            {name:"Forgetfulness of construction", role:"okuden", author:"William James", blurb:"Habits go invisible as they get fluent.", full: TEXTS.IllusionOfObjectivity, perspectives:{james:"Fluency masks contingency; slow down to see."}},
+            {name:"Projection of inner order", role:"okuden", author:"Jung", blurb:"We read psyche-patterns into world-patterns.", full: TEXTS.IllusionOfObjectivity, perspectives:{jung:"Shadow shows as fate; own it to reconfigure."}},
+            {name:"Social construction of knowledge", role:"noetic", author:"Foucault", blurb:"Power/knowledge systems set the bounds of 'truth'.", full: TEXTS.IllusionOfObjectivity, perspectives:{foucault:"Map the archive, not the idol of objectivity."}}
+          ]
+        },
+        {
+          name: "III. Blindness to Creative Activity",
+          role: "okuden",
+          blurb: "Transparency of consciousness + comfort of passivity + reification of constructs.",
+          full: TEXTS.Transparency,
+          children:[
+            {name:"Transparency of consciousness", role:"okuden", blurb:"We see trees, not seeing; seamlessness hides making.", full: TEXTS.Transparency},
+            {name:"Illusion of passive reception", role:"okuden", author:"Kierkegaard", blurb:"We'd rather consume truth than choose it.", full: TEXTS.PassiveReception, perspectives:{kierkegaard:"Truth as becoming, not possession."}},
+            {name:"Reification of constructs", role:"noetic", blurb:"Processes hardened into things; tools mistaken for truths.", full: TEXTS.Reification}
+          ]
+        },
+        {
+          name: "IV. Consequences",
+          role: "noetic",
+          blurb: "Conflict, dogmatism, humility-resistance when frameworks are absolutized.",
+          full: TEXTS.Consequences,
+          children:[
+            {name:"Conflict across frameworks", role:"noetic", blurb:"Disagreements framed as truth vs. falsehood, not map vs. map.", full: TEXTS.Consequences},
+            {name:"Dogmatism", role:"okuden", blurb:"Existential anxiety armors frameworks.", full: TEXTS.Consequences},
+            {name:"Resistance to humility", role:"okuden", blurb:"Fear of groundlessness masquerades as certainty.", full: TEXTS.Consequences}
+          ]
+        },
+        {
+          name: "V. Pathways to Recognition",
+          role: "gold",
+          blurb: "Reflection, perspective-taking, embracing uncertainty.",
+          full: TEXTS.PathwaysForward,
+          children:[
+            {name:"Philosophical reflection", role:"gold", blurb:"Examine assumptions; practice over mere theory.", full: TEXTS.Reflection},
+            {name:"Perspective-taking", role:"gold", blurb:"Inhabit rival maps from the inside.", full: TEXTS.PerspectiveTaking},
+            {name:"Embrace uncertainty", role:"gold", blurb:"Act experimentally; hold conclusions lightly.", full: TEXTS.Uncertainty}
+          ]
+        },
+        {
+          name: "VI. Ethics & Politics of Construction",
+          role: "noetic",
+          blurb: "Design frameworks that enhance flourishing; expose 'natural necessity' myths.",
+          full: TEXTS.EthicsPolitics,
+          children:[
+            {name:"Ethics of construction", role:"noetic", blurb:"Choose metaphors that widen possibility and reduce harm.", full: TEXTS.EthicsPolitics},
+            {name:"Politics of construction", role:"noetic", blurb:"Institutions embody frameworks; they can be redesigned.", full: TEXTS.EthicsPolitics}
+          ]
+        },
+        {
+          name: "VII. Death, Groundlessness, Meaning",
+          role: "violet",
+          blurb: "Make ego transparent; build dwellings within impermanence.",
+          full: TEXTS.DeathGroundlessness,
+          children:[
+            {name:"Structural fragility of ego", role:"violet", blurb:"A verb posing as a noun; threatened by the real.", full: TEXTS.DeathGroundlessness},
+            {name:"Conscious architecture of meaning", role:"violet", blurb:"Embed contingency-awareness; design for change.", full: TEXTS.DeathGroundlessness}
+          ]
+        },
+        {
+          name: "VIII. Politics of Death Denial",
+          role: "violet",
+          blurb: "Macro-ego defenses: cults of certainty, institutional destruction, short-termism.",
+          full: TEXTS.PoliticsDeathDenial,
+          children:[
+            {name:"Macro ego defense", role:"violet", blurb:"Authoritarian rituals soothe uncertainty.", full: TEXTS.PoliticsDeathDenial},
+            {name:"Short-termism", role:"violet", blurb:"Spectacle over stewardship accelerates collapse.", full: TEXTS.PoliticsDeathDenial}
+          ]
+        },
+        {
+          name: "IX. Pathways Forward",
+          role: "gold",
+          blurb: "Meta-cognitive flexibility; humble institutions; long view.",
+          full: TEXTS.PathwaysForward,
+          children:[
+            {name:"Individual practice", role:"gold", blurb:"Awareness + action without paralysis.", full: TEXTS.PathwaysForward},
+            {name:"Cultural innovation", role:"gold", blurb:"Media, education, politics that acknowledge perspective.", full: TEXTS.PathwaysForward},
+            {name:"The long view", role:"gold", blurb:"Care for futures beyond self by befriending mortality.", full: TEXTS.PathwaysForward}
+          ]
+        },
+        {
+          name: "Conclusion: Conscious Architect",
+          role: "okuden",
+          blurb: "Build with awareness, skill, responsibility; neither absolutism nor chaos.",
+          full: TEXTS.Conclusion,
+          children:[
+            {name:"Middle way", role:"okuden", blurb:"Move between constructing and inhabiting with skill.", full: TEXTS.Conclusion}
+          ]
+        }
+      ]
+    };
+
+    // Cross-links for graph mode
+    const LINKS = [
+      ["Narrative construction","Politics of construction"],
+      ["Metaphor creates mind-space","Philosophical reflection"],
+      ["Reflexive cognition","Individual practice"],
+      ["Projection of inner order","Macro ego defense"],
+      ["Reification of constructs","Ethics of construction"],
+      ["Embrace uncertainty","The long view"],
+      ["Structural fragility of ego","Short-termism"],
+      ["Conscious architecture of meaning","Cultural innovation"],
+      ["Conflict across frameworks","Perspective-taking"],
+      ["Dogmatism","Philosophical reflection"],
+      ["Resistance to humility","Embrace uncertainty"],
+      ["Middle way","Individual practice"]
+    ];
+
+    // ---------- Helpers ----------
+    const roleColor = (role)=> ({
+      okuden: getCSS('--okuden'),
+      noetic: getCSS('--noetic'),
+      gold: getCSS('--gold'),
+      violet: getCSS('--violet')
+    })[role] || getCSS('--accent');
+
+    function getCSS(varName){
+      return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+    }
+
+    function flatten(root){
+      const out=[];
+      (function rec(n, parent){
+        out.push({node:n, parent});
+        (n.children||[]).forEach(c=>rec(c,n));
+      })(root,null);
+      return out;
+    }
+
+    // Breadcrumb / panel update
+    const titleEl = document.getElementById('title');
+    const subtitleEl = document.getElementById('subtitle');
+    const contentEl = document.getElementById('content');
+    const fullEl = document.getElementById('fullText');
+    const trailEl = document.getElementById('trail');
+
+    function setPanel(node, path){
+      titleEl.textContent = node.name || '—';
+      subtitleEl.textContent = (node.author? (node.author + ' • '): '') + (node.role? node.role.toUpperCase(): '');
+      const perspective = document.getElementById('perspective').value;
+      const ptext = node.perspectives && node.perspectives[perspective];
+      contentEl.innerHTML = `<strong>${node.blurb||''}</strong>` + (ptext? `<div style="margin-top:8px; color:var(--muted)"><em>Perspective (${perspective}):</em> ${ptext}</div>`: '');
+      fullEl.textContent = node.full || '';
+      trailEl.innerHTML = '';
+      (path||[]).forEach(p=>{
+        const el = document.createElement('span');
+        el.className='crumb'; el.textContent=p.name; trailEl.appendChild(el);
+      });
+    }
+
+    // ---------- Fractal Pack (zoomable circle packing) ----------
+    const packSVG = d3.select('#pack');
+    const packG = packSVG.append('g');
+    const width = packSVG.node().clientWidth, height = +packSVG.attr('height');
+
+    const packLayout = d3.pack().size([width-4, height-4]).padding(6);
+    const root = d3.hierarchy(DATA).sum(d=> (d.children? 0 : 1)).sort((a,b)=> (a.height - b.height) || (a.data.role>b.data.role?1:-1));
+    packLayout(root);
+
+    const nodes = packG.selectAll('g.node')
+      .data(root.descendants())
+      .join('g')
+      .attr('class','node')
+      .attr('transform',d=>`translate(${d.x},${d.y})`)
+      .style('cursor','pointer');
+
+    nodes.append('circle')
+      .attr('r', d=>d.r)
+      .attr('fill', d=> d.children? 'rgba(160,200,255,.03)' : roleColor(d.data.role))
+      .attr('stroke','rgba(255,255,255,.12)')
+      .attr('stroke-width',1);
+
+    nodes.append('text')
+      .attr('dy','0.32em')
+      .attr('text-anchor','middle')
+      .style('pointer-events','none')
+      .style('fill', d=> d.children? '#d0e0ff' : '#04121f')
+      .style('font-weight', d=> d.children? 600 : 800)
+      .style('font-size', d=> Math.min(16, d.r/3+4))
+      .text(d=> d.data.name);
+
+    let focus = root, view;
+    const tip = d3.select('#tip');
+
+    function zoomTo(v){
+      const k = (width) / (v[2]);
+      view = v;
+      nodes.attr('transform', d=>`translate(${(d.x - v[0]) * k + width/2},${(d.y - v[1]) * k + height/2})`);
+      nodes.selectAll('circle').attr('r', d=> d.r * k);
+      nodes.selectAll('text').style('opacity', d=> d.parent === focus || d === focus ? 1 : 0);
+    }
+
+    function zoom(d){
+      focus = d;
+      const transition = packSVG.transition().duration(600).tween('zoom', ()=>{
+        const i = d3.interpolateZoom(view, [focus.x, focus.y, focus.r * 2.4]);
+        return t => zoomTo(i(t));
+      });
+      setPanel(d.data, d.ancestors().reverse().map(a=>a.data));
+    }
+
+    packSVG.on('click', (ev)=> zoom(root));
+
+    nodes.on('click', (event, d)=>{ event.stopPropagation(); zoom(d); });
+
+    nodes.on('mousemove', (event, d)=>{
+      tip.style('opacity',1).style('transform',`translate(${event.clientX+12}px,${event.clientY+12}px)`)
+         .html(`<strong>${d.data.name}</strong><br><span style='color:var(--muted)'>${d.data.blurb||''}</span>`);
+    }).on('mouseleave',()=> tip.style('opacity',0));
+
+    zoomTo([root.x, root.y, root.r * 2.4]);
+    setPanel(root.data, [root.data]);
+
+    // Impermanence: subtle hue drift + micro-jitter
+    let impermTimer=null; const impermCheck = document.getElementById('impermanence');
+    function startImpermanence(){
+      stopImpermanence();
+      impermTimer = setInterval(()=>{
+        nodes.each(function(d,i){
+          if(!d.children){
+            const circle = d3.select(this).select('circle');
+            const base = d3.color(roleColor(d.data.role));
+            if(!base) return;
+            const c = d3.hsl(base);
+            const t = Date.now()/6000 + i*0.3; c.h = (c.h + Math.sin(t)*8) % 360; c.l = Math.max(0.2, Math.min(0.6, c.l + Math.sin(t*1.3)*0.02));
+            circle.attr('fill', c.formatHex());
+          }
+          const jitter = impermCheck.checked ? (Math.sin((Date.now()/700)+d.x)*0.6) : 0;
+          d3.select(this).attr('transform',`translate(${d.x + jitter},${d.y - jitter})`);
+        });
+      }, 90);
+    }
+    function stopImpermanence(){ if(impermTimer){ clearInterval(impermTimer); impermTimer=null; }}
+    impermCheck.addEventListener('change', ()=> impermCheck.checked ? startImpermanence() : stopImpermanence());
+
+    // ---------- Graph view (cross-links) ----------
+    const graphSVG = d3.select('#graph');
+    const graphG = graphSVG.append('g');
+    const zoomBehavior = d3.zoom().scaleExtent([0.2, 4]).on('zoom', (event)=> graphG.attr('transform', event.transform));
+    graphSVG.call(zoomBehavior);
+
+    function buildGraph(){
+      const leaves = root.leaves();
+      const nodeByName = new Map(leaves.map(l=>[l.data.name, l]));
+      const graphNodes = leaves.map(l=> ({ id:l.data.name, role:l.data.role, data:l.data }));
+      const graphLinks = LINKS.map(([a,b])=> ({ source:a, target:b })).filter(e=> nodeByName.has(e.source) && nodeByName.has(e.target));
+
+      const sim = d3.forceSimulation(graphNodes)
+        .force('link', d3.forceLink(graphLinks).id(d=>d.id).distance(120).strength(0.6))
+        .force('charge', d3.forceManyBody().strength(-180))
+        .force('center', d3.forceCenter(graphSVG.node().clientWidth/2, +graphSVG.attr('height')/2))
+        .force('collide', d3.forceCollide().radius(28));
+
+      const link = graphG.selectAll('line.link').data(graphLinks).join('line').attr('class','link')
+        .attr('stroke','#4c5d8f').attr('stroke-opacity',0.65).attr('stroke-width',1.6);
+
+      const node = graphG.selectAll('g.gnode').data(graphNodes).join('g').attr('class','gnode').style('cursor','pointer').call(d3.drag()
+        .on('start', (event,d)=>{ if(!event.active) sim.alphaTarget(0.3).restart(); d.fx=d.x; d.fy=d.y; })
+        .on('drag', (event,d)=>{ d.fx=event.x; d.fy=event.y; })
+        .on('end', (event,d)=>{ if(!event.active) sim.alphaTarget(0); d.fx=null; d.fy=null; }));
+
+      node.append('circle').attr('r', 14).attr('fill', d=> roleColor(d.role)).attr('stroke','#040b16').attr('stroke-width',1.5)
+        .attr('filter','drop-shadow(0 0 6px rgba(108,224,255,.45))');
+      node.append('text').text(d=> d.id).attr('x',18).attr('y',4).style('fill','#d6def0').style('font-size','12px');
+
+      node.on('click', (event,d)=>{
+        setPanel(d.data, [{name:'Graph'}, {name:d.id}]);
+      }).on('mousemove', (event,d)=>{
+        tip.style('opacity',1).style('transform',`translate(${event.clientX+12}px,${event.clientY+12}px)`).html(`<strong>${d.id}</strong>`);
+      }).on('mouseleave',()=> tip.style('opacity',0));
+
+      sim.on('tick',()=>{
+        link.attr('x1', d=>d.source.x).attr('y1', d=>d.source.y).attr('x2', d=>d.target.x).attr('y2', d=>d.target.y);
+        node.attr('transform', d=>`translate(${d.x},${d.y})`);
+      });
+
+      return {sim, node, link};
+    }
+
+    let graphInstance = null;
+
+    function showView(mode){
+      const packEl = document.getElementById('pack');
+      const graphEl = document.getElementById('graph');
+      if(mode==='graph'){
+        packEl.style.display='none'; graphEl.style.display='block';
+        if(!graphInstance) graphInstance = buildGraph();
+      } else {
+        graphEl.style.display='none'; packEl.style.display='block';
+      }
+    }
+
+    document.getElementById('viewMode').addEventListener('change', (e)=> showView(e.target.value));
+
+    // Perspective changes: refresh current panel with same node but different lens
+    document.getElementById('perspective').addEventListener('change', ()=>{
+      setPanel(focus.data, focus.ancestors().map(a=>a.data));
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', ()=>{
+      zoom(root); showView(document.getElementById('viewMode').value='pack');
+    });
+
+    // Start with pack view visible
+    document.getElementById('graph').style.display='none';
+
+    // Resize handler for responsiveness
+    window.addEventListener('resize', ()=>{
+      const w = packSVG.node().clientWidth; const h = +packSVG.attr('height');
+      packLayout.size([w-4,h-4])(root); // recompute
+      zoomTo([focus.x, focus.y, focus.r * 2.4]);
+    });
+  </script>
+</body>
+</html>
