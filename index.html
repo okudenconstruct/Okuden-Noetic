@@ -125,16 +125,9 @@
   </footer>
 
   <div class="tooltip" id="tip"></div>
-
   <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
-  <script>
-    // ---------- Full Treatise Texts (verbatim from your draft) ----------
-    const TEXTS = { /* (unchanged — omitted for brevity in this block) */ };
-  </script>
-  <script>
-    // Re-insert full TEXTS (the block above is a placeholder for readability in diff). For the live canvas, the previous TEXTS object remains intact.
-  </script>
+  
+  
   <script>
     // ---------- Full Treatise Texts (verbatim from your draft) ----------
     const TEXTS = {
@@ -171,7 +164,120 @@ The psychologist Julian Jaynes proposed that modern self-reflective consciousnes
     };
 
     // ---------- Data: treatise mapped to Okuden (engine) & Noetic (structure) ----------
-    const DATA = { /* SAME as current DATA in canvas — retained verbatim */ };
+    const DATA = {
+      name: "The Unconscious Architect",
+      role: "root",
+      blurb: "We are unconscious architects of meaning; awakening means seeing and steering our constructions.",
+      full: TEXTS.Preface,
+      children: [
+        {
+          name: "I. Constructed Mind",
+          role: "okuden",
+          blurb: "Consciousness as engineered mind-space; reflexive, metaphor-driven, narrative by default.",
+          full: TEXTS.ConstructedMind,
+          children:[
+            {name:"Metaphor creates mind-space", role:"okuden", author:"Jaynes", blurb:"Metaphorical language invents an internal stage where 'thoughts' become manipulable objects.", full: TEXTS.ConstructedMind, perspectives:{okuden:"Rule: language builds the scaffold we mistake for a room.", noetic:"Tile: container metaphor repeats across scales (self, group, culture).", hume:"We infer inner objects by habit, not observation."}},
+            {name:"Reflexive cognition", role:"okuden", author:"Hume", blurb:"We think about thinking; causation is projected, not seen.", full: TEXTS.ReflexiveQuality, perspectives:{okuden:"Rule: uncover projections before claims.", noetic:"Tile: feedback loops at every zoom."}},
+            {name:"Imaginative foundation", role:"okuden", author:"Nietzsche", blurb:"Truths ride on armies of metaphors.", full: TEXTS.ImaginativeFoundation, perspectives:{nietzsche:"All concepts are worn-down metaphors; utility beats 'truth'."}},
+            {name:"Narrative construction", role:"noetic", author:"Arendt", blurb:"Stories knit identity and world; coherence performs continuity.", full: TEXTS.NarrativeConstruction, perspectives:{arendt:"Political meaning crystallizes through storytelling."}}
+          ]
+        },
+        {
+          name: "II. Illusion of Objectivity",
+          role: "okuden",
+          blurb: "We forget our authorship; projections & power make frameworks feel like nature.",
+          full: TEXTS.IllusionOfObjectivity,
+          children:[
+            {name:"Forgetfulness of construction", role:"okuden", author:"William James", blurb:"Habits go invisible as they get fluent.", full: TEXTS.IllusionOfObjectivity, perspectives:{james:"Fluency masks contingency; slow down to see."}},
+            {name:"Projection of inner order", role:"okuden", author:"Jung", blurb:"We read psyche-patterns into world-patterns.", full: TEXTS.IllusionOfObjectivity, perspectives:{jung:"Shadow shows as fate; own it to reconfigure."}},
+            {name:"Social construction of knowledge", role:"noetic", author:"Foucault", blurb:"Power/knowledge systems set the bounds of 'truth'.", full: TEXTS.IllusionOfObjectivity, perspectives:{foucault:"Map the archive, not the idol of objectivity."}}
+          ]
+        },
+        {
+          name: "III. Blindness to Creative Activity",
+          role: "okuden",
+          blurb: "Transparency of consciousness + comfort of passivity + reification of constructs.",
+          full: TEXTS.Transparency,
+          children:[
+            {name:"Transparency of consciousness", role:"okuden", blurb:"We see trees, not seeing; seamlessness hides making.", full: TEXTS.Transparency},
+            {name:"Illusion of passive reception", role:"okuden", author:"Kierkegaard", blurb:"We'd rather consume truth than choose it.", full: TEXTS.PassiveReception, perspectives:{kierkegaard:"Truth as becoming, not possession."}},
+            {name:"Reification of constructs", role:"noetic", blurb:"Processes hardened into things; tools mistaken for truths.", full: TEXTS.Reification}
+          ]
+        },
+        {
+          name: "IV. Consequences",
+          role: "noetic",
+          blurb: "Conflict, dogmatism, humility-resistance when frameworks are absolutized.",
+          full: TEXTS.Consequences,
+          children:[
+            {name:"Conflict across frameworks", role:"noetic", blurb:"Disagreements framed as truth vs. falsehood, not map vs. map.", full: TEXTS.Consequences},
+            {name:"Dogmatism", role:"okuden", blurb:"Existential anxiety armors frameworks.", full: TEXTS.Consequences},
+            {name:"Resistance to humility", role:"okuden", blurb:"Fear of groundlessness masquerades as certainty.", full: TEXTS.Consequences}
+          ]
+        },
+        {
+          name: "V. Pathways to Recognition",
+          role: "gold",
+          blurb: "Reflection, perspective-taking, embracing uncertainty.",
+          full: TEXTS.PathwaysForward,
+          children:[
+            {name:"Philosophical reflection", role:"gold", blurb:"Examine assumptions; practice over mere theory.", full: TEXTS.Reflection},
+            {name:"Perspective-taking", role:"gold", blurb:"Inhabit rival maps from the inside.", full: TEXTS.PerspectiveTaking},
+            {name:"Embrace uncertainty", role:"gold", blurb:"Act experimentally; hold conclusions lightly.", full: TEXTS.Uncertainty}
+          ]
+        },
+        {
+          name: "VI. Ethics & Politics of Construction",
+          role: "noetic",
+          blurb: "Design frameworks that enhance flourishing; expose 'natural necessity' myths.",
+          full: TEXTS.EthicsPolitics,
+          children:[
+            {name:"Ethics of construction", role:"noetic", blurb:"Choose metaphors that widen possibility and reduce harm.", full: TEXTS.EthicsPolitics},
+            {name:"Politics of construction", role:"noetic", blurb:"Institutions embody frameworks; they can be redesigned.", full: TEXTS.EthicsPolitics}
+          ]
+        },
+        {
+          name: "VII. Death, Groundlessness, Meaning",
+          role: "violet",
+          blurb: "Make ego transparent; build dwellings within impermanence.",
+          full: TEXTS.DeathGroundlessness,
+          children:[
+            {name:"Structural fragility of ego", role:"violet", blurb:"A verb posing as a noun; threatened by the real.", full: TEXTS.DeathGroundlessness},
+            {name:"Conscious architecture of meaning", role:"violet", blurb:"Embed contingency-awareness; design for change.", full: TEXTS.DeathGroundlessness}
+          ]
+        },
+        {
+          name: "VIII. Politics of Death Denial",
+          role: "violet",
+          blurb: "Macro-ego defenses: cults of certainty, institutional destruction, short-termism.",
+          full: TEXTS.PoliticsDeathDenial,
+          children:[
+            {name:"Macro ego defense", role:"violet", blurb:"Authoritarian rituals soothe uncertainty.", full: TEXTS.PoliticsDeathDenial},
+            {name:"Short-termism", role:"violet", blurb:"Spectacle over stewardship accelerates collapse.", full: TEXTS.PoliticsDeathDenial}
+          ]
+        },
+        {
+          name: "IX. Pathways Forward",
+          role: "gold",
+          blurb: "Meta-cognitive flexibility; humble institutions; long view.",
+          full: TEXTS.PathwaysForward,
+          children:[
+            {name:"Individual practice", role:"gold", blurb:"Awareness + action without paralysis.", full: TEXTS.PathwaysForward},
+            {name:"Cultural innovation", role:"gold", blurb:"Media, education, politics that acknowledge perspective.", full: TEXTS.PathwaysForward},
+            {name:"The long view", role:"gold", blurb:"Care for futures beyond self by befriending mortality.", full: TEXTS.PathwaysForward}
+          ]
+        },
+        {
+          name: "Conclusion: Conscious Architect",
+          role: "okuden",
+          blurb: "Build with awareness, skill, responsibility; neither absolutism nor chaos.",
+          full: TEXTS.Conclusion,
+          children:[
+            {name:"Middle way", role:"okuden", blurb:"Move between constructing and inhabiting with skill.", full: TEXTS.Conclusion}
+          ]
+        }
+      ]
+    };
 
     const LINKS = [
       ["Narrative construction","Politics of construction"],
